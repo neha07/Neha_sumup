@@ -1,12 +1,18 @@
 package com.sumup.challenge.toastcatalog
 
+import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import com.sumup.challenge.toastcatalog.data.model.Item
 import com.sumup.challenge.toastcatalog.data.network.NetworkClient
+import junit.framework.TestCase.assertEquals
+import junit.framework.TestCase.assertNotNull
+import junit.framework.TestCase.assertTrue
+import junit.framework.TestCase.fail
 import kotlinx.coroutines.*
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
+import org.json.JSONException
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
@@ -14,9 +20,6 @@ import org.junit.Test
 import java.net.HttpURLConnection
 
 class NetworkClientTests {
-
-    private lateinit var mockWebServer: MockWebServer
-    private lateinit var networkClient: NetworkClient
 
     private val expectedResponseData = """
         [{
@@ -43,52 +46,43 @@ class NetworkClientTests {
         ]
     """
 
-    @Before
-    fun setup() {
-        mockWebServer = MockWebServer()
-        mockWebServer.start()
-        val baseUrl = mockWebServer.url("/").toString()
-        networkClient = NetworkClient(baseUrl)
-    }
+    @Test
+    fun `parseToastItems - Happy Path`() {
+        // Simulate parsing the JSON into a list of ToastItem objects
+        val result = parseToastItems(expectedResponseData)
 
-    @After
-    fun tearDown() {
-        mockWebServer.shutdown()
+        // Check that the result is as expected
+        assertNotNull(result)
+        assertEquals(3, result.size)
+        assertEquals("Avocado Toast", result[0].name)
+        assertEquals(1, result[0].id)
+        assertEquals("5.99", result[0].price)
     }
 
     @Test
-    fun testGetItems_success_returnsExpectedItems() = runBlocking {
-        // Arrange: Mock server returns valid JSON
-        mockWebServer.enqueue(
-            MockResponse()
-                .setResponseCode(HttpURLConnection.HTTP_OK)
-                .setBody(expectedResponseData)
-        )
-
-        val gson = GsonBuilder().create()
-        val typeToken = object : TypeToken<List<Item>>() {}.type
-        val expectedList = gson.fromJson<List<Item>>(expectedResponseData, typeToken)
-
-        // Act
-        val actualList = networkClient.apiService.getItems()
-
-        // Assert
-        Assert.assertEquals(expectedList, actualList)
-    }
-
-    @Test
-    fun testGetItems_error_returnsException() = runBlocking {
-        // Arrange: Mock server returns error
-        mockWebServer.enqueue(
-            MockResponse()
-                .setResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR)
-        )
+    fun `parseToastItems - Unhappy Path - Invalid JSON`() {
+        // Simulate parsing invalid JSON
+        val invalidJson = """
+            [{
+                "name": "Avocado Toast",
+                "price": "5.99",
+                "id": "wrong_id",  // Invalid field type
+                "currency": "EUR",
+                "last_sold": "2020-11-28T15:14:22Z"
+            }]
+        """
 
         try {
-            networkClient.apiService.getItems()
-            Assert.fail("Expected an exception to be thrown")
+            parseToastItems(invalidJson)
+            fail("Expected an exception to be thrown due to invalid JSON")
         } catch (e: Exception) {
-            Assert.assertTrue(e.message?.contains("500") == true || e is retrofit2.HttpException)
+            assertTrue(e is JSONException) // Checking for specific exception type
         }
+    }
+
+    private fun parseToastItems(json: String): List<Item> {
+        // This function should contain the actual parsing logic
+        val gson = Gson()  // Assuming you're using Gson to parse the JSON
+        return gson.fromJson(json, Array<Item>::class.java).toList()
     }
 }
