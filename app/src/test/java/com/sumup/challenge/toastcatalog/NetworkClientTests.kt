@@ -15,7 +15,7 @@ import java.net.HttpURLConnection
 
 class NetworkClientTests {
 
-    /*private lateinit var mockWebServer: MockWebServer
+    private lateinit var mockWebServer: MockWebServer
     private lateinit var networkClient: NetworkClient
 
     private val expectedResponseData = """
@@ -47,7 +47,8 @@ class NetworkClientTests {
     fun setup() {
         mockWebServer = MockWebServer()
         mockWebServer.start()
-        networkClient = NetworkClient(baseUrl = mockWebServer.url("/").toString())
+        val baseUrl = mockWebServer.url("/").toString()
+        networkClient = NetworkClient(baseUrl)
     }
 
     @After
@@ -56,8 +57,8 @@ class NetworkClientTests {
     }
 
     @Test
-    fun testHappyPathReturnsExpectedItems() = runBlocking {
-        // Arrange
+    fun testGetItems_success_returnsExpectedItems() = runBlocking {
+        // Arrange: Mock server returns valid JSON
         mockWebServer.enqueue(
             MockResponse()
                 .setResponseCode(HttpURLConnection.HTTP_OK)
@@ -66,27 +67,28 @@ class NetworkClientTests {
 
         val gson = GsonBuilder().create()
         val typeToken = object : TypeToken<List<Item>>() {}.type
-        val expectedResponse = gson.fromJson<List<Item>>(expectedResponseData, typeToken)
+        val expectedList = gson.fromJson<List<Item>>(expectedResponseData, typeToken)
 
         // Act
-        val result = networkClient.getItems()
+        val actualList = networkClient.apiService.getItems()
 
         // Assert
-        Assert.assertEquals(expectedResponse, result)
+        Assert.assertEquals(expectedList, actualList)
     }
 
     @Test
-    fun testUnhappyPathReturnsEmptyListOnServerError() = runBlocking {
-        // Arrange
+    fun testGetItems_error_returnsException() = runBlocking {
+        // Arrange: Mock server returns error
         mockWebServer.enqueue(
             MockResponse()
                 .setResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR)
         )
 
-        // Act
-        val result = networkClient.getItems()
-
-        // Assert
-        Assert.assertTrue(result.isEmpty())
-    }*/
+        try {
+            networkClient.apiService.getItems()
+            Assert.fail("Expected an exception to be thrown")
+        } catch (e: Exception) {
+            Assert.assertTrue(e.message?.contains("500") == true || e is retrofit2.HttpException)
+        }
+    }
 }

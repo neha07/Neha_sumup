@@ -1,13 +1,13 @@
 package com.sumup.challenge.toastcatalog.data.network
 
-import com.sumup.challenge.toastcatalog.data.model.Item
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 class NetworkClient(private val baseUrl: String = DEFAULT_BASE_URL) {
 
     companion object {
-        private const val DEFAULT_BASE_URL = "https://my-json-server.typicode.com/sumup-challenges/mobile-coding-challenge-data/"
+        private const val DEFAULT_BASE_URL =
+            "https://my-json-server.typicode.com/sumup-challenges/mobile-coding-challenge-data/"
     }
 
     val apiService: ItemApiService by lazy {
@@ -18,11 +18,4 @@ class NetworkClient(private val baseUrl: String = DEFAULT_BASE_URL) {
             .create(ItemApiService::class.java)
     }
 
-    /*suspend fun getItems(): List<Item> {
-        return try {
-            apiService.getItems()
-        } catch (e: Exception) {
-            emptyList() // or throw if your design prefers it
-        }
-    }*/
 }
