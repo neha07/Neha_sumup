@@ -11,41 +11,71 @@ Features
 
 # Unit testing for ViewModel and UseCase layers.
 
-Project Structure
+📦 Project Structure
 ├── data
-│ ├── model # Data models representing the structure of the fetched data
-│ ├── network # API-related functionality (e.g., Retrofit interfaces)
-│ └── repository # Repository classes to handle data fetching and processing
+│   ├── model         // Data models
+│   ├── network       // API services
+│   └── repository    // Data handling logic
+│
+├── domain
+│   ├── usecase       // Business logic
+│   └── model         // Domain models / sealed classes
+│
 ├── di
-│ └── hiltModule # Hilt module for Dependency Injection setup
+│   └── hiltModule    // Hilt modules for DI
+│
 ├── ui
-│ ├── items # Folder containing UI components related to items
-│ │ ├── state # Contains UI states represented as sealed classes
-│ │ ├── ItemScreen # Main screen Composable that displays the list of items
-│ │ ├── ItemViewModel # ViewModel to handle UI logic and state management
-│ │ ├── ItemRow # Composable for displaying each item in the list
-│ │ └── ItemComposeActivity # Activity that hosts the ItemScreen composable
-├── utils
-│ └── utility
+│   ├── itemRow               // Reusable row UI
+│   ├── itemScreen            // Compose screen
+│   ├── itemComposeActivity   // Entry activity
+│   └── ItemViewModel         // ViewModel with state
+│
+└── test
+└── viewmodel 
 
-Dependencies
+Project Structure
+✅ UI Layer (ui)
+Built using Jetpack Compose.
 
-# Hilt: Dependency Injection
+Contains:
 
-# Jetpack Compose: UI
+ItemScreen – the main screen that shows the list.
 
-# JUnit & Mockito: Unit testing
+ItemRow – a reusable item row.
 
-Architecture
-UI Layer: Displays data using ItemScreen and ItemRow.
+ItemComposeActivity – the launcher activity.
 
-ViewModel Layer: Fetches data via UseCases.
+ItemViewModel – manages UI state and logic.
 
-Domain Layer: Contains business logic and use cases.
+✅ ViewModel (ItemViewModel)
+Acts as a bridge between UI and data.
 
-Data Layer: Handles data sources (model, network, repository).
+Asks the Repository for data.
 
-DI Layer: Hilt injects dependencies.
+Stores and exposes state (like loading, success, or error) to the UI.
 
-Unit Testing
-Run tests via Android Studio's Run All Tests.
+✅ Data Layer (data)
+Handles actual data-related logic.
+
+Contains:
+
+Model – defines the data structure.
+
+Network – makes API calls (or returns mock data).
+
+Repository – fetches data from the network and provides it to the ViewModel.
+
+✅ DI Layer (di)
+Uses Hilt to automatically provide classes like the Repository and NetworkService where needed.
+
+Keeps code clean and reduces boilerplate.
+
+✅ Summary
+MVVM keeps the app well-structured and testable.
+
+Jetpack Compose builds the UI in a modern, clean way.
+
+Hilt simplifies dependency management.
+
+The app flows like:
+UI → ViewModel → Repository → Data → ViewModel → UI
