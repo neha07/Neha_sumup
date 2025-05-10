@@ -26,7 +26,7 @@ JUnit for ViewModel testing
     - **ItemViewModel/** – ViewModel managing UI state and logic
 
 - **test/**
-    - **viewmodel/** – Unit tests for the ViewModel
+    - **viewmodel/** – Unit tests for the Repository and ViewModel
 
 
 🔄 App Flow

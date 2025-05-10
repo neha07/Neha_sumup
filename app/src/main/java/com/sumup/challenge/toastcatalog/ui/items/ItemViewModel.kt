@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sumup.challenge.toastcatalog.data.model.Item
-import com.sumup.challenge.toastcatalog.data.repository.ItemRepository
+import com.sumup.challenge.toastcatalog.domain.ItemRepository
 import com.sumup.challenge.toastcatalog.ui.items.state.ItemUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
